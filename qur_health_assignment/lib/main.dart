@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:qur_health_assignment/bloc/bloc/api_bloc.dart';
+import 'package:qur_health_assignment/bloc/api_bloc/api_bloc.dart';
 import 'package:qur_health_assignment/widgets/list_of_characters.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

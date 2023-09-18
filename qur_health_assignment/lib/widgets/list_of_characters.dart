@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:qur_health_assignment/bloc/bloc/api_bloc.dart';
+import 'package:qur_health_assignment/bloc/api_bloc/api_bloc.dart';
+import 'package:qur_health_assignment/bloc/api_bloc/sorting_bloc/sorting_bloc.dart';
 import 'package:qur_health_assignment/models/characters.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qur_health_assignment/models/results.dart';
 import 'package:qur_health_assignment/widgets/chracters_details.dart';
 import 'package:qur_health_assignment/widgets/image_widget.dart';
+import 'package:qur_health_assignment/widgets/search_filter_charcters.dart';
 
 class CharactersList extends StatefulWidget {
   const CharactersList({super.key});
@@ -31,6 +33,16 @@ class _CharactersListState extends State<CharactersList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("CHARACTERS"),
+        actions: <Widget>[
+          IconButton(
+              onPressed: () {
+                navigateToSearchAndFilterScreen(context);
+              },
+              icon: const Icon(
+                Icons.search,
+                color: Colors.white,
+              ))
+        ],
       ),
       body: BlocBuilder<ApiBloc, ApiState>(
         builder: (context, state) {
@@ -40,7 +52,7 @@ class _CharactersListState extends State<CharactersList> {
             );
           } else if (state is CharactersLoadedState) {
             List<Results> combinedList = state.listOfCharacters.results ?? [];
-            if (charactersResponse != null) {
+            if (charactersResponse != null && state.filtersEnable == false) {
               List<Results> oldList = charactersResponse?.results ?? [];
               List<Results> newList = state.listOfCharacters.results ?? [];
               combinedList = oldList + newList;
@@ -106,6 +118,26 @@ class _CharactersListState extends State<CharactersList> {
             ),
           );
         });
+  }
+
+  navigateToSearchAndFilterScreen(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  create: (context) => SortingBloc(),
+                  child: SearchFilterCharacters(
+                    function: filterCharacters,
+                  ),
+                )));
+  }
+
+  void filterCharacters(String filterString) {
+    print('the filter string $filterString');
+    apiBloc.add(FetchNewCharacters(
+        apiUrl: 'https://rickandmortyapi.com/api/character/?$filterString'
+            .toLowerCase(),
+        filtersEnable: true));
   }
 
   navigateToDetailsPage(

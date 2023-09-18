@@ -6,5 +6,6 @@ class InitialFetchCharactersEvent extends ApiEvent {}
 
 class FetchNewCharacters extends ApiEvent {
   late String apiUrl;
-  FetchNewCharacters({required this.apiUrl});
+  bool? filtersEnable = false;
+  FetchNewCharacters({required this.apiUrl, this.filtersEnable});
 }

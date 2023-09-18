@@ -11,5 +11,6 @@ class InitialApiloading extends ApiState {}
 
 class CharactersLoadedState extends ApiState {
   CharactersResponse listOfCharacters;
-  CharactersLoadedState({required this.listOfCharacters});
+  bool? filtersEnable = false;
+  CharactersLoadedState({required this.listOfCharacters, this.filtersEnable});
 }

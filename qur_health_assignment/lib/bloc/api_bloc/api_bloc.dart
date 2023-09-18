@@ -24,7 +24,9 @@ class ApiBloc extends Bloc<ApiEvent, ApiState> {
         try {
           CharactersResponse charactersResponse =
               await repository.fetchCharacters(event.apiUrl);
-          emit(CharactersLoadedState(listOfCharacters: charactersResponse));
+          emit(CharactersLoadedState(
+              listOfCharacters: charactersResponse,
+              filtersEnable: event.filtersEnable));
         } catch (e) {
           // emit(ContactListErrorState(message: e.toString()));
         }
