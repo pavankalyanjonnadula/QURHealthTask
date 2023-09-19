@@ -19,6 +19,8 @@ class _CharactersListState extends State<CharactersList> {
   late ApiBloc apiBloc;
   CharactersResponse? charactersResponse;
   ScrollController controller = ScrollController();
+  bool filtersEnable = false;
+  String? filterString;
   double scrollPosition = 0.0; // Store the scroll position.
 
   @override
@@ -52,7 +54,9 @@ class _CharactersListState extends State<CharactersList> {
             );
           } else if (state is CharactersLoadedState) {
             List<Results> combinedList = state.listOfCharacters.results ?? [];
+            filtersEnable = state.filtersEnable ?? false;
             if (charactersResponse != null && state.filtersEnable == false) {
+              debugPrint("the flutteerr --");
               List<Results> oldList = charactersResponse?.results ?? [];
               List<Results> newList = state.listOfCharacters.results ?? [];
               combinedList = oldList + newList;
@@ -61,6 +65,13 @@ class _CharactersListState extends State<CharactersList> {
             }
             charactersResponse = state.listOfCharacters;
             return createListView(combinedList);
+          } else if (state is ErrorState) {
+            return const Center(
+              child: Text(
+                'No characters are available',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            );
           }
           return Container();
         },
@@ -128,12 +139,21 @@ class _CharactersListState extends State<CharactersList> {
                   create: (context) => SortingBloc(),
                   child: SearchFilterCharacters(
                     function: filterCharacters,
+                    filtersString: filterString,
                   ),
                 )));
   }
 
   void filterCharacters(String filterString) {
-    print('the filter string $filterString');
+    if (filterString == '') {
+      apiBloc.add(FetchNewCharacters(
+          apiUrl: 'https://rickandmortyapi.com/api/character',
+          filtersEnable: false));
+      charactersResponse = null;
+      this.filterString = filterString;
+      return;
+    }
+    this.filterString = filterString;
     apiBloc.add(FetchNewCharacters(
         apiUrl: 'https://rickandmortyapi.com/api/character/?$filterString'
             .toLowerCase(),

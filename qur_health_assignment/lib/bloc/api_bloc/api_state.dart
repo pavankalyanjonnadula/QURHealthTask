@@ -14,3 +14,8 @@ class CharactersLoadedState extends ApiState {
   bool? filtersEnable = false;
   CharactersLoadedState({required this.listOfCharacters, this.filtersEnable});
 }
+
+class ErrorState extends ApiState {
+  String errorString;
+  ErrorState({required this.errorString});
+}

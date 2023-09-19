@@ -15,8 +15,6 @@ class MyImageWidget extends StatelessWidget {
       image: NetworkImage(imageUrl),
       fit: BoxFit.cover,
       imageErrorBuilder: (context, error, stackTrace) {
-        // If the network image fails to load, this callback will be triggered.
-        // You can return a fallback image or any other widget here.
         return Image(image: placeholderImage);
       },
     );

@@ -16,19 +16,23 @@ class ApiBloc extends Bloc<ApiEvent, ApiState> {
         try {
           CharactersResponse charactersResponse = await repository
               .fetchCharacters("https://rickandmortyapi.com/api/character");
-          emit(CharactersLoadedState(listOfCharacters: charactersResponse));
+          emit(CharactersLoadedState(
+              listOfCharacters: charactersResponse, filtersEnable: false));
         } catch (e) {
           // emit(ContactListErrorState(message: e.toString()));
         }
       } else if (event is FetchNewCharacters) {
+        if (event.filtersEnable ?? false) {
+          emit(InitialApiloading());
+        }
         try {
           CharactersResponse charactersResponse =
               await repository.fetchCharacters(event.apiUrl);
           emit(CharactersLoadedState(
               listOfCharacters: charactersResponse,
-              filtersEnable: event.filtersEnable));
+              filtersEnable: event.filtersEnable ?? false));
         } catch (e) {
-          // emit(ContactListErrorState(message: e.toString()));
+          emit(ErrorState(errorString: e.toString()));
         }
       }
     });
