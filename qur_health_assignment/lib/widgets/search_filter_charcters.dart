@@ -4,8 +4,10 @@ import 'package:qur_health_assignment/bloc/api_bloc/sorting_bloc/sorting_bloc.da
 
 // ignore: must_be_immutable
 class SearchFilterCharacters extends StatefulWidget {
-  SearchFilterCharacters({required this.function, Key? key}) : super(key: key);
+  SearchFilterCharacters({required this.function, this.filtersString, Key? key})
+      : super(key: key);
   Function(String) function;
+  String? filtersString;
   @override
   State<SearchFilterCharacters> createState() => _SearchFilterCharactersState();
 }
@@ -17,6 +19,18 @@ class _SearchFilterCharactersState extends State<SearchFilterCharacters> {
   void initState() {
     super.initState();
     sortingBloc = BlocProvider.of<SortingBloc>(context);
+    if (widget.filtersString != null) {
+      List<String>? arrayStr = widget.filtersString?.split('&');
+      for (String indexStr in arrayStr ?? []) {
+        if (indexStr.contains('gender')) {
+          selectedGender = indexStr.split('=').last;
+        } else if (indexStr.contains('status')) {
+          selectedStatus = indexStr.split('=').last;
+        } else if (indexStr.contains('name')) {
+          characterName = indexStr.split('=').last;
+        }
+      }
+    }
   }
 
   @override
@@ -25,6 +39,7 @@ class _SearchFilterCharactersState extends State<SearchFilterCharacters> {
       appBar: AppBar(
         title: const Text('Filters'),
       ),
+      resizeToAvoidBottomInset: false,
       body: BlocBuilder<SortingBloc, SortingState>(builder: (context, state) {
         if (state is SortingInitial) {
           return Padding(
@@ -62,14 +77,13 @@ class _SearchFilterCharactersState extends State<SearchFilterCharacters> {
                   charcterStatusAndGenderRow(
                       ['Male', 'Female', 'Unknown'], 'Gender'),
                   Padding(
-                    padding: const EdgeInsets.only(top: 15),
+                    padding: const EdgeInsets.only(top: 15, bottom: 15),
                     child: SizedBox(
                       height: 50,
                       width: MediaQuery.of(context).size.width - 30,
                       child: TextButton(
                         onPressed: () {
-                          widget.function(
-                              'status=$selectedStatus&gender=$selectedGender');
+                          widget.function(createApiUrlExtension());
                           Navigator.pop(context);
                         },
                         style: TextButton.styleFrom(
@@ -83,12 +97,53 @@ class _SearchFilterCharactersState extends State<SearchFilterCharacters> {
                       ),
                     ),
                   ),
+                  Visibility(
+                    visible: widget.filtersString != null,
+                    child: SizedBox(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width - 30,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                            side: const BorderSide(width: 1),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.blue),
+                        onPressed: () {
+                          setState(() {
+                            selectedGender = '';
+                            selectedStatus = '';
+                            characterName = '';
+                            widget.function('');
+
+                            Navigator.pop(context);
+                          });
+                        },
+                        child: const Text(
+                          'RESET FILTERS',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  )
                 ]),
           );
         }
         return Container();
       }),
     );
+  }
+
+  String createApiUrlExtension() {
+    String finalExtension = '';
+    if (selectedGender != '') {
+      finalExtension = '&gender=$selectedGender';
+    }
+    if (selectedStatus != '') {
+      finalExtension = '$finalExtension&status=$selectedStatus';
+    }
+    if (characterName != '') {
+      finalExtension = '$finalExtension&name=$characterName';
+    }
+    return finalExtension.substring(1);
   }
 
   Row charcterStatusAndGenderRow(List<String> array, String keyValvue) {
